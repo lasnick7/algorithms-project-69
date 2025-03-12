@@ -48,7 +48,7 @@ function countEntries(arr, item) {
 }
 
 export default function search(docs, items) {
-    return docs.map((doc) => {
+    const result = docs.map((doc) => {
         let totalEntriesCount = 0;
         let wordCount = 0;
 
@@ -85,6 +85,8 @@ export default function search(docs, items) {
         return b.count - a.count;
     })
     .map((doc) => doc.id);
+
+    return result;
 }
 
 // const withW = [
@@ -109,4 +111,29 @@ const doc6 = { id: 'doc6', text: "it is a banana" };
 
 const docs = [doc1, doc2, doc3, doc4, doc5, doc6];
 
-console.log(search(docs, 'shoot at me is'))
+// console.log(search(docs, 'shoot at me is'))
+
+function invertIndex(docs) {
+    const index = {};
+
+    const docsWithArrText = docs.map((doc) => {
+        const arr = doc.text
+        .toLowerCase()
+        .split(' ')
+        .map((token) => makeTerm(token))
+        .sort();
+        doc.text = arr;
+        return doc;
+    });
+
+    docsWithArrText.forEach((doc) => doc.text.forEach((word) => {
+        if(!(word in index)) {
+            index[word] = [];
+        }
+        index[word].push(doc.id)
+    }));
+
+    return index;
+}
+
+console.log(invertIndex(docs))
