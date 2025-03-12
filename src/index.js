@@ -56,8 +56,11 @@ function TF(doc, word) {
 function IDF(docs, word, index) {
     const docsCount = docs.length;
     const termCount = index[word].length;
-
-    return Math.log2(1 + (docsCount - termCount + 1) / (termCount + 0.5));
+    if (termCount !== 0) {
+        return Math.log2(1 + (docsCount - termCount + 1) / (termCount + 0.5));
+    } else {
+        return 0;
+    }
 }
 
 export default function search(docs, items) {
@@ -98,4 +101,4 @@ const doc6 = { id: 'doc6', text: "it is a banana" };
 
 const docs = [doc1, doc2, doc3, doc4, doc5, doc6];
 
-console.log(search(docs, 'shoot'))
+console.log(search(docs, 'shoot at me'))
