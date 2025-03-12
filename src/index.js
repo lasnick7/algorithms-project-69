@@ -67,7 +67,7 @@ function IDF(docs, word, index) {
     const termCount = index[word].length || 0;
     return Math.log2(1 + (docsCount - termCount + 1) / (termCount + 0.5));
   }
-  
+
   return 0;
 }
 
