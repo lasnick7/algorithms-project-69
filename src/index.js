@@ -1,4 +1,4 @@
-import search from "./search.js";
+import search from "./relevantSearch.js";
 
 export default search;
 

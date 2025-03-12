@@ -2,7 +2,10 @@ t:
 	node functions.js
 
 s:
-	node src/search.js
+	node src/quicSearch.js
+
+r:
+	node src/relevantSearch.js
 
 i:
 	node src/index.js
