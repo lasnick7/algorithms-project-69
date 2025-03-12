@@ -43,9 +43,16 @@ function binarySearch(arr, item) {
     }
 }
 
+function makeTerm(token) {
+    return token.match(/\w+/g)[0];
+}
+
 export default function search(docs, item) {
     return docs.filter((doc) => {
-        const arr = quicSort(doc.text.toLowerCase().split(' '));
-        return binarySearch(arr, item);
+        const arr = quicSort(doc.text
+            .toLowerCase()
+            .split(' '))
+            .map((token) => makeTerm(token));
+        return binarySearch(arr, makeTerm(item));
     }).map((doc) => doc.id);
 }
