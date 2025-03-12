@@ -1,4 +1,5 @@
-/* eslint-disable  linebreak-style */
+/* eslint-disable linebreak-style */
+/* eslint-disable no-console */
 
 function makeTerm(token) {
   const matchResult = token.match(/\w+/g);
@@ -17,8 +18,8 @@ function countEntries(doc, word) {
 
   const arrayOfWords = makeArrayFromText(doc.text);
 
-  for (let item of arrayOfWords) {
-    if (item === word) {
+  for (let i = 0; i < arrayOfWords.length; i += 1) {
+    if (arrayOfWords[i] === word) {
       count += 1;
     }
   }
@@ -38,8 +39,7 @@ function invertIndex(docs) {
     return newDoc;
   });
 
-  docsWithArrText.forEach((doc) =>
-    doc.text.forEach((word) => {
+  docsWithArrText.forEach((doc) => doc.text.forEach((word) => {
       if (!Object.keys(index).includes(word)) {
         index[word] = [];
       }
@@ -84,9 +84,7 @@ export default function search(docs, items) {
       const currWordIDF = IDF(docs, word, index);
       const currWordTFIDF = currWordTF * currWordIDF;
 
-      console.log(
-        `word ${word} in doc ${doc.id} TF: ${currWordTF}, IDF: ${currWordIDF}, TF-IDF: ${currWordTFIDF}`
-      );
+      console.log(`word ${word} in doc ${doc.id} TF: ${currWordTF}, IDF: ${currWordIDF}, TF-IDF: ${currWordTFIDF}`);
       TFIDF += currWordTFIDF;
     });
 
