@@ -76,6 +76,8 @@ export default function search(docs, items) {
             const currWordTF = TF(doc, word);
             const currWordIDF = IDF(docs, word, index);
             const currWordTFIDF = currWordTF * currWordIDF;
+
+            console.log(`word ${word} in doc ${doc.id} TF: ${currWordTF}, IDF: ${currWordIDF}, TF-IDF: ${currWordTFIDF}`)
             TFIDF += currWordTFIDF;
         });
 
