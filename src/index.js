@@ -1,3 +1,5 @@
+/* eslint-disable  linebreak-style */
+
 function makeTerm(token) {
     const matchResult = token.match(/\w+/g); 
     return matchResult ? matchResult[0] : ''; 
@@ -59,10 +61,8 @@ function IDF(docs, word, index) {
     const docsCount = docs.length;
     if (index[word]) {
         const termCount = index[word].length || 0;
-        console.log('index[word]', word, index[word])
         return Math.log2(1 + (docsCount - termCount + 1) / (termCount + 0.5));
     }
-    console.log('index[word] does not exists')
     return 0;
 }
 
@@ -96,14 +96,3 @@ export default function search(docs, items) {
         .sort((a, b) => b.TFIDF - a.TFIDF)
         .map((doc) => doc.id);
 }
-
-const doc1 = { id: 'doc1', text: "I can't shoot straight unless I've had a pint!" };
-const doc2 = { id: 'doc2', text: "Don't shoot shoot shoot that thing at me." };
-const doc3 = { id: 'doc3', text: "I'm your shooter." };
-const doc4 = { id: 'doc4', text: "it is what it is" };
-const doc5 = { id: 'doc5', text: "what Is it" };
-const doc6 = { id: 'doc6', text: "it is a banana" };
-
-const docs = [doc1, doc2, doc3, doc4, doc5, doc6];
-
-console.log(search(docs, 'shoot at me, nerd'))
