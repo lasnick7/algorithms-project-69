@@ -34,10 +34,12 @@ function invertIndex(docs) {
     });
 
     docsWithArrText.forEach((doc) => doc.text.forEach((word) => {
-        if(!(word in index)) {
+        if(!Object.keys(index).includes(word)) {
             index[word] = [];
         }
-        index[word].push(doc.id)
+        if (!index[word].includes(doc.id)) {
+            index[word].push(doc.id)
+        }
     }));
 
     return index;
