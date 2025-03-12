@@ -47,27 +47,66 @@ function countEntries(arr, item) {
     return count;
 }
 
-export default function search(docs, item) {
+export default function search(docs, items) {
     return docs.map((doc) => {
+        let totalEntriesCount = 0;
+        let wordCount = 0;
+
         const arr = doc.text
             .toLowerCase()
             .split(' ')
             .map((token) => makeTerm(token))
             .sort();
 
+        const words = items
+            .toLowerCase()
+            .split(' ')
+            .map((token) => makeTerm(token));
+
+        words.forEach((word) => {
+            const entriesForCurrWord = countEntries(arr, word);
+            if (entriesForCurrWord > 0) {
+                totalEntriesCount += entriesForCurrWord;
+                wordCount += 1;
+            }
+        });
+
         return {
             id: doc.id, 
-            count: countEntries(arr, makeTerm(item)),
+            count: totalEntriesCount,
+            words: wordCount,
         };
     })
-    .sort((a, b) => b.count - a.count)
     .filter((doc) => doc.count > 0)
+    .sort((a, b) => {
+        if (a.words !== b.words) {
+            return b.words - a.words;
+        }
+        return b.count - a.count;
+    })
     .map((doc) => doc.id);
 }
+
+// const withW = [
+//     { id: 'doc1', count: 1, words: 1 },
+//     { id: 'doc2', count: 5, words: 3 },
+//     { id: 'doc4', count: 2, words: 1 },
+//     { id: 'doc5', count: 1, words: 1 },
+//     { id: 'doc6', count: 1, words: 1 }
+//   ]
+
+// function newSort(docs) {
+//     const sortedByWords = docs.sort(a)
+// }
+
 
 const doc1 = { id: 'doc1', text: "I can't shoot straight unless I've had a pint!" };
 const doc2 = { id: 'doc2', text: "Don't shoot shoot shoot that thing at me." };
 const doc3 = { id: 'doc3', text: "I'm your shooter." };
-const docs = [doc1, doc2, doc3];
+const doc4 = { id: 'doc4', text: "it is what it is" };
+const doc5 = { id: 'doc5', text: "what Is it" };
+const doc6 = { id: 'doc6', text: "it is a banana" };
 
-console.log(search(docs, 'shoot'))
+const docs = [doc1, doc2, doc3, doc4, doc5, doc6];
+
+console.log(search(docs, 'shoot at me is'))
