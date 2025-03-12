@@ -2,48 +2,22 @@ function makeTerm(token) {
     const matchResult = token.match(/\w+/g); 
     return matchResult ? matchResult[0] : ''; 
 }
-function countEntries(arr, item) {
+
+function makeArrayFromText(text) {
+    return text.toLowerCase().split(' ').map((token) => makeTerm(token));
+}
+
+function countEntries(doc, word) {
     let count = 0;
 
-    let startIndex = 0;
-    let endIndex = arr.length - 1;
+    const arrayOfWords = makeArrayFromText(doc.text);
 
-    function getMiddleIndex(startIndex, endIndex) {
-        return Math.floor((endIndex - startIndex) / 2) + startIndex;
-    }
-
-    let middleIndex = getMiddleIndex(startIndex, endIndex);
-
-    while(startIndex <= endIndex) {
-        if (arr[middleIndex] === item) {
+    for (let item of arrayOfWords) {
+        if (item === word) {
             count += 1;
-
-            for (let i = middleIndex + 1; i <= endIndex; i += 1) {
-                if (arr[i] === item) {
-                    count += 1;
-                } else {
-                    break;
-                }
-            }
-
-            for (let i = middleIndex - 1; i >= startIndex; i -= 1) {
-                if (arr[i] === item) {
-                    count += 1;
-                } else {
-                    break;
-                }
-            }
-
-            return count;
-        } else if (arr[middleIndex] < item) {
-            startIndex = middleIndex + 1;
-            middleIndex = getMiddleIndex(startIndex, endIndex);
-        } else if (arr[middleIndex] > item) {
-            endIndex = middleIndex - 1;
-            middleIndex = getMiddleIndex(startIndex, endIndex);
         }
     }
-
+    console.log(`entries for ${doc.id}, word ${word}: ${count}`)
     return count;
 }
 
@@ -53,13 +27,9 @@ function invertIndex(docs) {
     const docsWithArrText = docs.map((doc) => {
         const newDoc = {...doc};
 
-        const arr = doc.text
-        .toLowerCase()
-        .split(' ')
-        .map((token) => makeTerm(token))
-        .sort();
+        const arrayOfWords = makeArrayFromText(doc.text);
 
-        newDoc.text = arr;
+        newDoc.text = arrayOfWords;
         return newDoc;
     });
 
@@ -74,15 +44,11 @@ function invertIndex(docs) {
 }
 
 function TF(doc, word) {
-    const arr = doc.text
-        .toLowerCase()
-        .split(' ')
-        .map((token) => makeTerm(token))
-        .sort();
+    const arrayOfWords = makeArrayFromText(doc.text);
     
-    const wordCount = arr.length;
+    const wordCount = arrayOfWords.length;
 
-    const entriesCount = countEntries(arr, word);
+    const entriesCount = countEntries(doc, word);
 
     return entriesCount / wordCount;
 }
@@ -90,6 +56,7 @@ function TF(doc, word) {
 function IDF(docs, word, index) {
     const docsCount = docs.length;
     const termCount = index[word].length;
+
     return Math.log2(1 + (docsCount - termCount + 1) / (termCount + 0.5));
 }
 
@@ -97,10 +64,7 @@ export default function search(docs, items) {
     
     const index = invertIndex(docs);
 
-    const wordsToSearch = items
-        .toLowerCase()
-        .split(' ')
-        .map((token) => makeTerm(token));
+    const wordsToSearch = makeArrayFromText(items);
 
     const result = docs.map((doc) => {
         let TFIDF = 0;
@@ -116,10 +80,22 @@ export default function search(docs, items) {
             id: doc.id, 
             TFIDF,
         };
-    })
-    .filter((doc) => doc.TFIDF > 0)
-    .sort((a, b) => b.TFIDF - a.TFIDF)
-    .map((doc) => doc.id);
+    }); 
 
-    return result;
+    console.log(result); 
+
+    return result.filter((doc) => doc.TFIDF > 0)
+        .sort((a, b) => b.TFIDF - a.TFIDF)
+        .map((doc) => doc.id);
 }
+
+const doc1 = { id: 'doc1', text: "I can't shoot straight unless I've had a pint!" };
+const doc2 = { id: 'doc2', text: "Don't shoot shoot shoot that thing at me." };
+const doc3 = { id: 'doc3', text: "I'm your shooter." };
+const doc4 = { id: 'doc4', text: "it is what it is" };
+const doc5 = { id: 'doc5', text: "what Is it" };
+const doc6 = { id: 'doc6', text: "it is a banana" };
+
+const docs = [doc1, doc2, doc3, doc4, doc5, doc6];
+
+console.log(search(docs, 'shoot'))
