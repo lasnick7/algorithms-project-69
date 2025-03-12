@@ -46,8 +46,7 @@ function invertIndex(docs) {
       if (!index[word].includes(doc.id)) {
         index[word].push(doc.id);
       }
-    })
-  );
+    }));
 
   return index;
 }
