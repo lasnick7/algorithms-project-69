@@ -47,60 +47,6 @@ function countEntries(arr, item) {
     return count;
 }
 
-export default function search(docs, items) {
-    const result = docs.map((doc) => {
-        let totalEntriesCount = 0;
-        let wordCount = 0;
-
-        const arr = doc.text
-            .toLowerCase()
-            .split(' ')
-            .map((token) => makeTerm(token))
-            .sort();
-
-        const words = items
-            .toLowerCase()
-            .split(' ')
-            .map((token) => makeTerm(token));
-
-        words.forEach((word) => {
-            const entriesForCurrWord = countEntries(arr, word);
-            if (entriesForCurrWord > 0) {
-                totalEntriesCount += entriesForCurrWord;
-                wordCount += 1;
-            }
-        });
-
-        return {
-            id: doc.id, 
-            count: totalEntriesCount,
-            words: wordCount,
-        };
-    })
-    .filter((doc) => doc.count > 0)
-    .sort((a, b) => {
-        if (a.words !== b.words) {
-            return b.words - a.words;
-        }
-        return b.count - a.count;
-    })
-    .map((doc) => doc.id);
-
-    return result;
-}
-
-// const withW = [
-//     { id: 'doc1', count: 1, words: 1 },
-//     { id: 'doc2', count: 5, words: 3 },
-//     { id: 'doc4', count: 2, words: 1 },
-//     { id: 'doc5', count: 1, words: 1 },
-//     { id: 'doc6', count: 1, words: 1 }
-//   ]
-
-// function newSort(docs) {
-//     const sortedByWords = docs.sort(a)
-// }
-
 
 const doc1 = { id: 'doc1', text: "I can't shoot straight unless I've had a pint!" };
 const doc2 = { id: 'doc2', text: "Don't shoot shoot shoot that thing at me." };
@@ -117,13 +63,16 @@ function invertIndex(docs) {
     const index = {};
 
     const docsWithArrText = docs.map((doc) => {
+        const newDoc = {...doc};
+
         const arr = doc.text
         .toLowerCase()
         .split(' ')
         .map((token) => makeTerm(token))
         .sort();
-        doc.text = arr;
-        return doc;
+
+        newDoc.text = arr;
+        return newDoc;
     });
 
     docsWithArrText.forEach((doc) => doc.text.forEach((word) => {
@@ -136,4 +85,76 @@ function invertIndex(docs) {
     return index;
 }
 
-console.log(invertIndex(docs))
+function TF(doc, word) {
+    const arr = doc.text
+        .toLowerCase()
+        .split(' ')
+        .map((token) => makeTerm(token))
+        .sort();
+    
+    const wordCount = arr.length;
+
+    const entriesCount = countEntries(arr, word);
+
+    return entriesCount / wordCount;
+}
+
+function IDF(docs, word, index) {
+    const docsCount = docs.length;
+    const termCount = index[word].length;
+    return Math.log2(1 + (docsCount - termCount + 1) / (termCount + 0.5));
+}
+
+export default function search(docs, items) {
+    
+    const index = invertIndex(docs);
+
+    const wordsToSearch = items
+        .toLowerCase()
+        .split(' ')
+        .map((token) => makeTerm(token));
+
+    const result = docs.map((doc) => {
+        // let totalEntriesCount = 0;
+        // let wordCount = 0;
+        let TFIDF = 0;
+
+        // const arrOfWords = doc.text
+        //     .toLowerCase()
+        //     .split(' ')
+        //     .map((token) => makeTerm(token))
+        //     .sort();
+
+        wordsToSearch.forEach((word) => {
+            const currWordTF = TF(doc, word);
+            const currWordIDF = IDF(docs, word, index);
+            const currWordTFIDF = currWordTF * currWordIDF;
+            TFIDF += currWordTFIDF;
+        });
+
+        return {
+            id: doc.id, 
+            TFIDF,
+            // count: totalEntriesCount,
+            // words: wordCount,
+        };
+    })
+    .filter((doc) => doc.TFIDF > 0)
+    .sort((a, b) => b.TFIDF - a.TFIDF)
+    .map((doc) => doc.id);
+    // .map((doc) => doc.id);
+    // .sort((a, b) => {
+    //     if (a.words !== b.words) {
+    //         return b.words - a.words;
+    //     }
+    //     return b.count - a.count;
+    // })
+    // .map((doc) => doc.id);
+
+    return result;
+}
+
+console.log(search(docs, 'shoot at me is'))
+// console.log(TF(doc2, 'shoot'))
+// console.log(IDF(docs, 'shoot', invertIndex(docs)))
+// console.log(invertIndex(docs))

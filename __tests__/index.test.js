@@ -14,5 +14,5 @@ const docs = [doc1, doc2, doc3, doc4, doc5, doc6];
 test('search', () => {
   expect(search(docs, 'shoot!')).toEqual(['doc2', 'doc1']);
   expect(search([], 'shoot?')).toEqual([]);
-  expect(search(docs, 'shoot at me is')).toEqual([ 'doc2', 'doc4', 'doc1', 'doc5', 'doc6' ]);
+  expect(search(docs, 'shoot at me is')).toEqual([ 'doc2', 'doc4', 'doc5', 'doc6', 'doc1' ]);
 });
