@@ -55,12 +55,13 @@ function TF(doc, word) {
 
 function IDF(docs, word, index) {
     const docsCount = docs.length;
-    const termCount = index[word].length;
-    if (termCount !== 0) {
-        return Math.log2(1 + (docsCount - termCount + 1) / (termCount + 0.5));
-    } else {
-        return 0;
-    }
+    const termCount = index[word].length || 0;
+    console.log('index[word]', word, index[word])
+    // if (termCount !== 0) {
+    return Math.log2(1 + (docsCount - termCount + 1) / (termCount + 0.5));
+    // } else {
+    //     return 0;
+    // }
 }
 
 export default function search(docs, items) {
