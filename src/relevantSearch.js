@@ -1,7 +1,7 @@
 function makeTerm(token) {
-    return token.match(/\w+/g)[0];
+    const matchResult = token.match(/\w+/g); // Поиск совпадений
+    return matchResult ? matchResult[0] : ''; // Возвращаем первое совпадение или пустую строку
 }
-
 function countEntries(arr, item) {
     let count = 0;
 
